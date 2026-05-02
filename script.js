@@ -1,6 +1,51 @@
+// ========================================
+// PRELOADER / LOADING SCREEN
+// ========================================
+function initPreloader() {
+    const preloader = document.querySelector('.preloader');
+    
+    if (!preloader) return;
+    
+    // Hide preloader when page fully loaded
+    window.addEventListener('load', () => {
+        preloader.style.opacity = '0';
+        preloader.style.visibility = 'hidden';
+        document.body.style.overflow = 'auto';
+        document.body.classList.remove('no-scroll');
+        
+        // Force reflow
+        preloader.offsetHeight;
+        
+        // Complete removal after animation
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 500);
+    });
+    
+    // Fallback if load event fails (max 5 seconds)
+    setTimeout(() => {
+        if (preloader.style.display !== 'none') {
+            preloader.style.opacity = '0';
+            preloader.style.visibility = 'hidden';
+            document.body.style.overflow = 'auto';
+            document.body.classList.remove('no-scroll');
+            
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        }
+    }, 5000);
+}
+
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-    initAll();
+    // Initialize preloader FIRST
+    initPreloader();
+    
+    // Then initialize other components
+    setTimeout(() => {
+        initAll();
+    }, 100); // Small delay to ensure preloader starts first
 });
 
 function initAll() {
@@ -11,6 +56,11 @@ function initAll() {
     initPackageFilter();
     initFormHandler();
     initGallery();
+    
+    // Remove no-scroll class after everything is ready
+    setTimeout(() => {
+        document.body.classList.remove('no-scroll');
+    }, 200);
 }
 
 // ========================================
@@ -20,6 +70,8 @@ function initNavbar() {
     const navbar = document.getElementById('navbar');
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
+
+    if (!navbar || !navToggle || !navMenu) return;
 
     // Toggle mobile menu
     navToggle.addEventListener('click', () => {
@@ -76,6 +128,9 @@ function initTestimonialSlider() {
     const cards = document.querySelectorAll('.testimonial-card');
     const prevBtn = document.querySelector('.slider-btn.prev');
     const nextBtn = document.querySelector('.slider-btn.next');
+    
+    if (cards.length === 0) return;
+
     let currentIndex = 0;
     let autoSlideInterval;
 
@@ -95,8 +150,8 @@ function initTestimonialSlider() {
         showSlide(currentIndex);
     }
 
-    prevBtn.addEventListener('click', prevSlide);
-    nextBtn.addEventListener('click', nextSlide);
+    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
 
     // Auto slide
     function startAutoSlide() {
@@ -109,12 +164,14 @@ function initTestimonialSlider() {
 
     // Pause on hover
     const testimonialsContainer = document.querySelector('.testimonials-container');
-    testimonialsContainer.addEventListener('mouseenter', stopAutoSlide);
-    testimonialsContainer.addEventListener('mouseleave', startAutoSlide);
+    if (testimonialsContainer) {
+        testimonialsContainer.addEventListener('mouseenter', stopAutoSlide);
+        testimonialsContainer.addEventListener('mouseleave', startAutoSlide);
+    }
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-        if (document.querySelector('.testimonials-container').contains(document.activeElement)) {
+        if (testimonialsContainer && testimonialsContainer.contains(document.activeElement)) {
             if (e.key === 'ArrowRight') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
         }
@@ -159,6 +216,8 @@ function initPackageFilter() {
 
     function renderPackages(filteredPackages = packages) {
         const grid = document.querySelector('.packages-grid');
+        if (!grid) return;
+        
         grid.innerHTML = filteredPackages.map(pkg => `
             <div class="package-card ${pkg.category}" data-category="${pkg.category}">
                 <div class="package-image">
@@ -203,6 +262,7 @@ function initPackageFilter() {
 // ========================================
 function initFormHandler() {
     const form = document.getElementById('contactForm');
+    if (!form) return;
     
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -236,6 +296,8 @@ function initGallery() {
     document.querySelectorAll('.gallery-item').forEach(item => {
         item.addEventListener('click', () => {
             const img = item.querySelector('img');
+            if (!img) return;
+            
             const modal = document.createElement('div');
             modal.className = 'gallery-modal';
             modal.innerHTML = `
@@ -261,14 +323,3 @@ function closeModal(modal) {
     document.body.style.overflow = '';
     modal.remove();
 }
-
-// ========================================
-// UTILITY FUNCTIONS
-// ========================================
-document.body.classList.remove('no-scroll');
-
-// Preloader
-window.addEventListener('load', () => {
-    document.querySelector('.preloader').style.opacity = '0';
-    setTimeout(() => {
-        document.querySelector('.
