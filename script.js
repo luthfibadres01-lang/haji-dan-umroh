@@ -1,210 +1,274 @@
-// DOM Elements
-const navToggle = document.getElementById('nav-toggle');
-const navMenu = document.getElementById('nav-menu');
-const navbar = document.getElementById('navbar');
-const sections = document.querySelectorAll('section');
-const backToTop = document.getElementById('backToTop');
-const contactForm = document.getElementById('contactForm');
-const preloader = document.querySelector('.preloader');
+// Wait for DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+    initAll();
+});
 
-// Smooth Scrolling for Navigation Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-        // Close mobile menu if open
-        navMenu.classList.remove('active');
-        navToggle.classList.remove('active');
+function initAll() {
+    // Core functionality
+    initNavbar();
+    initScrollAnimations();
+    initTestimonialSlider();
+    initPackageFilter();
+    initFormHandler();
+    initGallery();
+}
+
+// ========================================
+// NAVBAR
+// ========================================
+function initNavbar() {
+    const navbar = document.getElementById('navbar');
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    // Toggle mobile menu
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        navToggle.classList.toggle('active');
+        document.body.classList.toggle('no-scroll');
     });
-});
 
-// Mobile Navigation Toggle
-navToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-    navToggle.classList.toggle('active');
-});
-
-// Navbar Background on Scroll
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 100) {
-        navbar.style.background = 'rgba(255,255,255,0.98)';
-        navbar.style.boxShadow = '0 5px 20px rgba(0,0,0,0.1)';
-    } else {
-        navbar.style.background = 'rgba(255,255,255,0.95)';
-        navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
-    }
-});
-
-// Preloader
-window.addEventListener('load', () => {
-    preloader.style.opacity = '0';
-    setTimeout(() => {
-        preloader.style.display = 'none';
-    }, 500);
-});
-
-// Scroll Animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
         }
     });
-}, observerOptions);
 
-// Observe sections for scroll animations
-sections.forEach(section => {
-    observer.observe(section);
-});
-
-// Back to Top Button
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 500) {
-        backToTop.classList.add('show');
-    } else {
-        backToTop.classList.remove('show');
-    }
-});
-
-backToTop.addEventListener('click', () => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-});
-
-// Contact Form Handler
-contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Get form data
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        message: document.getElementById('message').value
-    };
-
-    // Simple validation
-    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
-        alert('Mohon lengkapi semua field!');
-        return;
-    }
-
-    // Simulate form submission
-    const submitBtn = contactForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    
-    submitBtn.textContent = 'Mengirim...';
-    submitBtn.disabled = true;
-
-    // Simulate API call
-    setTimeout(() => {
-        alert('Terima kasih! Pesan Anda telah terkirim. Kami akan menghubungi Anda melalui WhatsApp dalam 24 jam.');
-        contactForm.reset();
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    }, 2000);
-});
-
-// Testimonial Slider (Simple Auto-rotate)
-const testimonialCards = document.querySelectorAll('.testimonial-card');
-let currentTestimonial = 0;
-
-function showTestimonial(index) {
-    testimonialCards.forEach((card, i) => {
-        card.style.opacity = i === index ? '1' : '0.3';
-        card.style.transform = i === index ? 'scale(1)' : 'scale(0.95)';
+    // Close menu on link click
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            navToggle.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        });
     });
 }
 
-setInterval(() => {
-    currentTestimonial = (currentTestimonial + 1) % testimonialCards.length;
-    showTestimonial(currentTestimonial);
-}, 5000);
+// ========================================
+// SCROLL ANIMATIONS
+// ========================================
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -100px 0px'
+    };
 
-// Initialize first testimonial
-showTestimonial(0);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
 
-// Package Cards Hover Effects
-document.querySelectorAll('.package-card').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-        card.style.transform = 'translateY(-10px) scale(1.02)';
+    document.querySelectorAll('section').forEach(section => {
+        observer.observe(section);
     });
-    
-    card.addEventListener('mouseleave', () => {
-        card.style.transform = 'translateY(0) scale(1)';
-    });
-});
+}
 
-// Gallery Lightbox Effect (Simple)
-document.querySelectorAll('.gallery-item').forEach(item => {
-    item.addEventListener('click', () => {
-        const imgSrc = item.querySelector('img').src;
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            cursor: pointer;
-        `;
-        modal.innerHTML = `
-            <img src="${imgSrc}" style="
-                max-width: 90%;
-                max-height: 90%;
-                border-radius: 10px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            ">
-        `;
-        document.body.appendChild(modal);
-        
-        modal.addEventListener('click', () => {
-            document.body.removeChild(modal);
+// ========================================
+// TESTIMONIAL SLIDER
+// ========================================
+function initTestimonialSlider() {
+    const cards = document.querySelectorAll('.testimonial-card');
+    const prevBtn = document.querySelector('.slider-btn.prev');
+    const nextBtn = document.querySelector('.slider-btn.next');
+    let currentIndex = 0;
+    let autoSlideInterval;
+
+    function showSlide(index) {
+        cards.forEach((card, i) => {
+            card.classList.toggle('active', i === index);
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % cards.length;
+        showSlide(currentIndex);
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+        showSlide(currentIndex);
+    }
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    // Auto slide
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoSlide() {
+        clearInterval(autoSlideInterval);
+    }
+
+    // Pause on hover
+    const testimonialsContainer = document.querySelector('.testimonials-container');
+    testimonialsContainer.addEventListener('mouseenter', stopAutoSlide);
+    testimonialsContainer.addEventListener('mouseleave', startAutoSlide);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (document.querySelector('.testimonials-container').contains(document.activeElement)) {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        }
+    });
+
+    // Initialize
+    showSlide(0);
+    startAutoSlide();
+}
+
+// ========================================
+// PACKAGE FILTER
+// ========================================
+function initPackageFilter() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const packages = [
+        {
+            id: 'umroh-reguler',
+            category: 'umroh',
+            title: 'Umroh Reguler 9 Hari',
+            price: 'Rp 27.500.000',
+            image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=250&fit=crop',
+            facilities: ['Hotel 3⭐ (10 menit Haram)', '3x Makan Harian', 'Garuda Indonesia PP', 'Visa + Asuransi', 'Ziyarah Madinah']
+        },
+        {
+            id: 'umroh-vip',
+            category: 'umroh vip',
+            title: 'Umroh VIP Platinum 12 Hari',
+            price: 'Rp 42.000.000',
+            image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=250&fit=crop',
+            facilities: ['Hotel 5⭐ (3 menit Haram)', 'Fullboard Premium', 'Saudia Business Class', 'Mutawif Pribadi 24/7', 'VIP Lounge']
+        },
+        {
+            id: 'haji-khusus',
+            category: 'haji',
+            title: 'Haji Khusus Superior 40 Hari',
+            price: 'Rp 98.000.000',
+            image: 'https://images.unsplash.com/photo-1588880365067-0e759ddeeen8?w=400&h=250&fit=crop',
+            facilities: ['Hotel VIP Mina/Arafah', 'Bus AC Khusus', 'Emirates First Class', 'Dokter 24 Jam', 'Tenda Kerajaan']
+        }
+    ];
+
+    function renderPackages(filteredPackages = packages) {
+        const grid = document.querySelector('.packages-grid');
+        grid.innerHTML = filteredPackages.map(pkg => `
+            <div class="package-card ${pkg.category}" data-category="${pkg.category}">
+                <div class="package-image">
+                    <img src="${pkg.image}" alt="${pkg.title}" loading="lazy">
+                    <div class="package-badge">${pkg.category.includes('vip') ? 'VIP' : 'BEST'}</div>
+                </div>
+                <div class="package-content">
+                    <h3>${pkg.title}</h3>
+                    <div class="package-price">${pkg.price}</div>
+                    <ul class="package-facilities">
+                        ${pkg.facilities.map(facility => `<li><i class="fas fa-check"></i> ${facility}</li>`).join('')}
+                    </ul>
+                    <div class="package-actions">
+                        <a href="#contact?pkg=${pkg.id}" class="btn btn-outline">Detail Paket</a>
+                        <a href="#contact" class="btn btn-primary">Pesan Sekarang</a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const filter = btn.dataset.filter;
+            const filtered = filter === 'all' 
+                ? packages 
+                : packages.filter(pkg => pkg.category.includes(filter));
+            
+            renderPackages(filtered);
         });
     });
-});
 
-// Active Navigation Link on Scroll
-window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (scrollY >= (sectionTop - 200)) {
-            current = section.getAttribute('id');
-        }
-    });
+    // Initial render
+    renderPackages();
+}
 
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
+// ========================================
+// CONTACT FORM
+// ========================================
+function initFormHandler() {
+    const form = document.getElementById('contactForm');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+        submitBtn.disabled = true;
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Success
+        alert('✅ Terima kasih! Pesan Anda berhasil terkirim.\n\nKami akan menghubungi Anda melalui WhatsApp dalam 1x24 jam untuk konsultasi lengkap.');
+        form.reset();
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-});
+}
 
-// Add active class to current nav link
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', function() {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
+// ========================================
+// GALLERY LIGHTBOX
+// ========================================
+function initGallery() {
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const img = item.querySelector('img');
+            const modal = document.createElement('div');
+            modal.className = 'gallery-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <img src="${img.src}" alt="${img.alt}">
+                    <button class="modal-close">&times;</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+            
+            // Close handlers
+            modal.querySelector('.modal-close').addEventListener('click', () => closeModal(modal));
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+        });
     });
-});
+}
+
+function closeModal(modal) {
+    document.body.style.overflow = '';
+    modal.remove();
+}
+
+// ========================================
+// UTILITY FUNCTIONS
+// ========================================
+document.body.classList.remove('no-scroll');
+
+// Preloader
+window.addEventListener('load', () => {
+    document.querySelector('.preloader').style.opacity = '0';
+    setTimeout(() => {
+        document.querySelector('.
